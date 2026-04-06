@@ -134,8 +134,28 @@ GET /cr/app/api/v1/devices/{sn}/jobs/liveMap/{job_uuid}
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/cr/app/api/v1/devices/{sn}/maps/list?map_data_version=N` | List maps |
+| GET | `/cr/app/api/v1/devices/{sn}/maps/list?map_data_version=N` | List maps (includes S3 download URL) |
 | GET | `/cr/app/api/v1/devices/{sn}/shortcuts/list?plan_data_version=N&slot_id=0` | List cleaning shortcuts/presets |
+
+### Map Data (from S3)
+
+The `maps/list` response includes `file_url` (pre-signed S3 URL) and `file_header` (AES256 SSE-C headers).
+Download with those headers returns JSON:
+
+- `seg_map.poly_info[]` — room polygons with `vertices` in meters, `poly_index`, `user_label`, `order_id`
+- `grid_map.map_info` — dimensions (448x512), resolution (0.046875 m/px), origin (-6, -15)
+- `grid_map.map_data[]` — base64-encoded grid tiles (compress_method=2)
+- `carpet_layer.data[]` — carpet polygon vertices
+- `restricted_layer` / `virtual_wall` — zone restrictions
+- `obstacle_layer` / `pet_layer` — detected objects
+
+### Live Map During Clean
+
+```
+GET /cr/app/api/v1/devices/{sn}/jobs/liveMap/{job_uuid}
+```
+
+Returns the live cleaning progress map (robot path, cleaned areas).
 
 ## Consumables
 
